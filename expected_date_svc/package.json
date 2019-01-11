@@ -1,5 +1,5 @@
 {
-  "name": "invoices_svc",
+  "name": "expected_date_svc",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -12,8 +12,6 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.16.4",
-    "moment": "^2.23.0",
-    "request": "^2.88.0",
-    "request-promise": "^4.2.2"
+    "moment": "^2.23.0"
   }
 }
