@@ -1,0 +1,60 @@
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    run: boots-svc
+  name: boots-svc
+  namespace: default
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      run: boots-svc
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        run: boots-svc
+    spec:
+      containers:
+      - image: boots_svc:v1
+        imagePullPolicy: IfNotPresent
+        name: boots-svc
+        env:
+        - name: EXPECTED_DATE_URI
+          value: http://expected-date-svc.default.svc.cluster.local
+        ports:
+        - containerPort: 8080
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    run: boots-svc
+  name: boots-svc
+  namespace: default
+  annotations:
+    getambassador.io/config: |
+      ---
+      apiVersion: ambassador/v0
+      kind:  Mapping
+      name:  fws-invoices_mapping
+      prefix: /boots/
+      rewrite: /api/boots/ #like a proxy for routes
+      service: boots-svc
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    run: boots-svc
+  sessionAffinity: None
+  type: ClusterIP
